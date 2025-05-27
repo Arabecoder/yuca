@@ -1,0 +1,158 @@
+// This is a Blazor WebAssembly version of the Minecraft-style launcher UI
+// Includes login functionality, navigation, and minimal animations
+
+// Program.cs
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MinecraftLauncherBlazor;
+
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
+
+await builder.Build().RunAsync();
+
+// App.razor
+<Router AppAssembly="typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="typeof(MainLayout)">
+            <p>Page not found.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+
+// MainLayout.razor
+@inherits LayoutComponentBase
+
+<div class="layout">
+    <nav class="sidebar">
+        <a @onclick="() => NavigateTo("home")">🏠</a>
+        <a @onclick="() => NavigateTo("profile")">👤</a>
+        <a @onclick="() => NavigateTo("modules")">📦</a>
+        <a @onclick="() => NavigateTo("settings")">⚙</a>
+        <a @onclick="() => NavigateTo("downloads")">⬇</a>
+    </nav>
+    <main>
+        @Body
+    </main>
+</div>
+
+@code {
+    [Inject] NavigationManager Nav { get; set; }
+    void NavigateTo(string route) => Nav.NavigateTo($"/{route}");
+}
+
+// Pages/Login.razor
+@page "/"
+@inject NavigationManager Nav
+
+<div class="login-container">
+    <h2>LOGIN</h2>
+    <input placeholder="Username" @bind="username" />
+    <input type="password" placeholder="Password" @bind="password" />
+    <button @onclick="Login">Login</button>
+    @if (!string.IsNullOrEmpty(error)) {
+        <p style="color: red">@error</p>
+    }
+</div>
+
+@code {
+    string username;
+    string password;
+    string error;
+
+    void Login()
+    {
+        if (username == "admin" && password == "1234")
+        {
+            Nav.NavigateTo("/home");
+        }
+        else
+        {
+            error = "Invalid credentials";
+        }
+    }
+}
+
+// Pages/Home.razor
+@page "/home"
+<h3 style="color:white">Welcome to the Launcher</h3>
+
+// Pages/Profile.razor
+@page "/profile"
+<h3 style="color:white">User Profile</h3>
+
+// Pages/Modules.razor
+@page "/modules"
+<h3 style="color:white">Installed Modules</h3>
+
+// Pages/Settings.razor
+@page "/settings"
+<h3 style="color:white">Settings</h3>
+
+// Pages/Downloads.razor
+@page "/downloads"
+<h3 style="color:white">Downloads</h3>
+
+// wwwroot/css/app.css
+body {
+    background-color: #1e1e2e;
+    font-family: sans-serif;
+    margin: 0;
+}
+.layout {
+    display: flex;
+    height: 100vh;
+}
+.sidebar {
+    background-color: #111;
+    width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10px;
+}
+.sidebar a {
+    color: #ccc;
+    font-size: 20px;
+    margin: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s;
+}
+.sidebar a:hover {
+    transform: scale(1.2);
+}
+main {
+    flex: 1;
+    padding: 40px;
+    color: white;
+}
+.login-container {
+    max-width: 300px;
+    margin: auto;
+    margin-top: 15vh;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.login-container input {
+    padding: 10px;
+    background-color: #2e2e3e;
+    color: white;
+    border: none;
+}
+.login-container button {
+    padding: 10px;
+    background-color: #814aff;
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+.login-container button:hover {
+    background-color: #6c3edc;
+}
